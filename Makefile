@@ -11,8 +11,6 @@ SHELL := /bin/bash
 OSTYPE := $(shell uname -s | tr A-Z a-z)
 ARCH := $(shell uname -m)
 
-
-
 # --- Tooling & Variables ----------------------------------------------------------------
 AIR := go run github.com/cosmtrek/air@v1.51.0
 GOLANGCI_LINT := go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2
@@ -42,14 +40,6 @@ lint:
 	@echo "Applying linter"
 	$(GOLANGCI_LINT) -c .golangci.yml ./...
 
-
-# build: ## Builds binary
-# 	@printf "Building aplication... "
-# 	@go build \
-# 		-trimpath  \
-# 		-o tmp/engine \
-# 		./app/
-# 	@echo "done"
 
 
 .PHONY: go-generate

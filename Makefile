@@ -1,8 +1,8 @@
 # Database
-MYSQL_USER ?= user
-MYSQL_PASSWORD ?= password
-MYSQL_ADDRESS ?= 127.0.0.1:3306
-MYSQL_DATABASE ?= article
+DB_USER ?= postgres
+DB_PASSWORD ?= password
+DB_ADDRESS ?= 127.0.0.1:5432
+DB_DATABASE ?= article
 
 # Default Shell
 SHELL := /bin/bash
@@ -17,8 +17,21 @@ ARCH := $(shell uname -m)
 GOLANGCI_LINT := go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2
 GOTESTSUM := go run gotest.tools/gotestsum@v1.11.0
 TPARSE := go run github.com/mfridman/tparse@v0.13.2
-# ~~~ Code Actions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.PHONY: compose-up
+compose-up:
+	@docker compose up -d --build
+
+.PHONY: compose-down
+compose-down:
+	@docker compose down
+
+.PHONY: compose-teardown
+compose-teardown:
+	@docker compose down --remove-orphans -v
+
+# ~~~ Code Actions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.PHONY: lint
 lint:
 	@echo "Applying linter"
 	$(GOLANGCI_LINT) -c .golangci.yml ./...

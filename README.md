@@ -57,9 +57,26 @@ Here is the steps to run it with
 
 TODO:
 
-### Tools Used
+### Building and running your application
 
-In this project, I use some tools listed below. But you can use any similar library that have the same purposes. But, well, different library will have different implementation type. Just be creative and use anything that you really need.
+When you're ready, start your application by running:
+`docker compose up --build`.
 
-- All libraries listed in [`go.mod`](https://github.com/bxcodec/go-clean-arch/blob/master/go.mod)
-- ["github.com/vektra/mockery".](https://github.com/vektra/mockery) To Generate Mocks for testing needs.
+Your application will be available at <http://localhost:9090>.
+
+### Deploying your application to the cloud
+
+First, build your image, e.g.: `docker build -t myapp .`.
+If your cloud uses a different CPU architecture than your development
+machine (e.g., you are on a Mac M1 and your cloud provider is amd64),
+you'll want to build the image for that platform, e.g.:
+`docker build --platform=linux/amd64 -t myapp .`.
+
+Then, push it to your registry, e.g. `docker push myregistry.com/myapp`.
+
+Consult Docker's [getting started](https://docs.docker.com/go/get-started-sharing/)
+docs for more detail on building and pushing.
+
+### References
+
+* [Docker's Go guide](https://docs.docker.com/language/golang/)

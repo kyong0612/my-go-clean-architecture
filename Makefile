@@ -14,9 +14,15 @@ ARCH := $(shell uname -m)
 
 
 # --- Tooling & Variables ----------------------------------------------------------------
+AIR := go run github.com/cosmtrek/air@v1.51.0
 GOLANGCI_LINT := go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2
 GOTESTSUM := go run gotest.tools/gotestsum@v1.11.0
 TPARSE := go run github.com/mfridman/tparse@v0.13.2
+
+# ~~~ Development Environment ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.PHONY: dev-air
+dev-air: 
+	$(AIR) -c .air.app.toml
 
 .PHONY: compose-up
 compose-up:
@@ -36,6 +42,21 @@ lint:
 	@echo "Applying linter"
 	$(GOLANGCI_LINT) -c .golangci.yml ./...
 
+
+# build: ## Builds binary
+# 	@printf "Building aplication... "
+# 	@go build \
+# 		-trimpath  \
+# 		-o tmp/engine \
+# 		./app/
+# 	@echo "done"
+
+
+.PHONY: go-generate
+go-generate:  ## Runs go generte ./...
+	go generate ./...
+
+
 TESTS_ARGS := --format testname --jsonfile gotestsum.json.out
 TESTS_ARGS += --max-fails 2
 TESTS_ARGS += -- ./...
@@ -52,4 +73,30 @@ tests:
 tests-complete: ## Run Tests & parse details
 	@cat gotestsum.json.out | $(TPARSE) -all -notests
 
+# ~~~ Docker ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+# # ~~~ Database Migrations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+
+# MYSQL_DSN := "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@tcp($(MYSQL_ADDRESS))/$(MYSQL_DATABASE)"
+
+# migrate-up: $(MIGRATE) ## Apply all (or N up) migrations.
+# 	@read -p "How many migration you wants to perform (default value: [all]): " N; \
+# 	migrate  -database $(MYSQL_DSN) -path=misc/migrations up ${NN}
+
+# .PHONY: migrate-down
+# migrate-down: $(MIGRATE) ## Apply all (or N down) migrations.
+# 	@read -p "How many migration you wants to perform (default value: [all]): " N; \
+# 	migrate  -database $(MYSQL_DSN) -path=misc/migrations down ${NN}
+
+# .PHONY: migrate-drop
+# migrate-drop: $(MIGRATE) ## Drop everything inside the database.
+# 	migrate  -database $(MYSQL_DSN) -path=misc/migrations drop
+
+# .PHONY: migrate-create
+# migrate-create: $(MIGRATE) ## Create a set of up/down migrations with a specified name.
+# 	@read -p "Please provide name for the migration: " Name; \
+# 	migrate create -ext sql -dir misc/migrations $${Name}
 

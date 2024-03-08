@@ -34,18 +34,15 @@ compose-teardown:
 .PHONY: compose-reset
 compose-reset: compose-teardown compose-up
 
+.PHONY: gen-sqlc
+generate-sqlc:
+	@go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.25.0 generate
+
 # ~~~ Code Actions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .PHONY: lint
 lint:
 	@echo "Applying linter"
 	$(GOLANGCI_LINT) -c .golangci.yml ./...
-
-
-
-.PHONY: go-generate
-go-generate:  ## Runs go generte ./...
-	go generate ./...
-
 
 TESTS_ARGS := --format testname --jsonfile gotestsum.json.out
 TESTS_ARGS += --max-fails 2

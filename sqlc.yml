@@ -1,0 +1,12 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    database:
+      uri: postgres://${DB_USER}:${DB_PASSWORD}@${DB_ADDRESS}/${DB_DATABASE}
+    queries: "internal/repository/rdb/query.sql"
+    schema: "migrations"
+    gen:
+      go:
+        package: "persistence"
+        out: "internal/repository/rdb/persistence"
+        sql_package: "pgx/v5"

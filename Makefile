@@ -16,6 +16,7 @@ AIR := go run github.com/cosmtrek/air@v1.51.0
 GOLANGCI_LINT := go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2
 GOTESTSUM := go run gotest.tools/gotestsum@v1.11.0
 TPARSE := go run github.com/mfridman/tparse@v0.13.2
+ATLAS := docker run --rm --net=host --mount type=bind,source="$(PWD)"/migrations,target=/migrations arigaio/atlas:0.19.2
 
 # ~~~ Development Environment ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .PHONY: dev-air
@@ -33,6 +34,9 @@ compose-down:
 .PHONY: compose-teardown
 compose-teardown:
 	@docker compose down --remove-orphans -v
+
+.PHONY: compose-reset
+compose-reset: compose-teardown compose-up
 
 # ~~~ Code Actions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .PHONY: lint
@@ -69,24 +73,47 @@ tests-complete: ## Run Tests & parse details
 
 # # ~~~ Database Migrations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
+BASE_DSN := postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_ADDRESS)
+DB_DSN := $(BASE_DSN)/$(DB_DATABASE)
+DEV_DB_DSN := $(BASE_DSN)/migrate-dev-database
 
-# MYSQL_DSN := "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@tcp($(MYSQL_ADDRESS))/$(MYSQL_DATABASE)"
+.PHONY: migrate-new
+migrate-new:
+	@read -p "Please provide name for the migration: " Name; \
+	$(ATLAS) migrate new $${Name}
 
-# migrate-up: $(MIGRATE) ## Apply all (or N up) migrations.
-# 	@read -p "How many migration you wants to perform (default value: [all]): " N; \
-# 	migrate  -database $(MYSQL_DSN) -path=misc/migrations up ${NN}
+.PHONY: migrate-hash
+migrate-hash:
+	$(ATLAS) migrate hash
+
+.PHONY: migrate-apply
+migrate-apply:
+	$(ATLAS) migrate apply \
+		-u $(DB_DSN)?sslmode=disable \
+		--dir "file://migrations" 
+		# --dev-url $(DEV_DB_DSN)?sslmode=disable
+
+.PHONY: schema-inspect
+schema-inspect:
+	$(ATLAS) schema inspect \
+		--url $(DB_DSN)?sslmode=disable \
+		--format '{{ mermaid . }}' > doc/db-schema.mmd
+
+
+# migrate-up:
+# 	migrate  -database $(DB_DSN) -path=misc/migrations up ${NN}
 
 # .PHONY: migrate-down
 # migrate-down: $(MIGRATE) ## Apply all (or N down) migrations.
 # 	@read -p "How many migration you wants to perform (default value: [all]): " N; \
-# 	migrate  -database $(MYSQL_DSN) -path=misc/migrations down ${NN}
+# 	migrate  -database $(DB_DSN) -path=misc/migrations down ${NN}
 
 # .PHONY: migrate-drop
 # migrate-drop: $(MIGRATE) ## Drop everything inside the database.
-# 	migrate  -database $(MYSQL_DSN) -path=misc/migrations drop
+# 	migrate  -database $(DB_DSN) -path=misc/migrations drop
 
 # .PHONY: migrate-create
-# migrate-create: $(MIGRATE) ## Create a set of up/down migrations with a specified name.
+# migrate-create: 
 # 	@read -p "Please provide name for the migration: " Name; \
 # 	migrate create -ext sql -dir misc/migrations $${Name}
 

@@ -11,7 +11,7 @@ import (
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
-// ResponseError represent the response error struct
+// ResponseError represent the response error struct.
 type ResponseError struct {
 	Message string `json:"message"`
 }
@@ -28,14 +28,14 @@ type ArticleService interface {
 	Delete(ctx context.Context, id int64) error
 }
 
-// ArticleHandler  represent the httphandler for article
+// ArticleHandler  represent the httphandler for article.
 type ArticleHandler struct {
 	Service ArticleService
 }
 
 const defaultNum = 10
 
-// NewArticleHandler will initialize the articles/ resources endpoint
+// NewArticleHandler will initialize the articles/ resources endpoint.
 func NewArticleHandler(e *echo.Echo, svc ArticleService) {
 	handler := &ArticleHandler{
 		Service: svc,
@@ -46,9 +46,8 @@ func NewArticleHandler(e *echo.Echo, svc ArticleService) {
 	e.DELETE("/articles/:id", handler.Delete)
 }
 
-// FetchArticle will fetch the article based on given params
+// FetchArticle will fetch the article based on given params.
 func (a *ArticleHandler) FetchArticle(c echo.Context) error {
-
 	numS := c.QueryParam("num")
 	num, err := strconv.Atoi(numS)
 	if err != nil || num == 0 {
@@ -67,7 +66,7 @@ func (a *ArticleHandler) FetchArticle(c echo.Context) error {
 	return c.JSON(http.StatusOK, listAr)
 }
 
-// GetByID will get article by given id
+// GetByID will get article by given id.
 func (a *ArticleHandler) GetByID(c echo.Context) error {
 	idP, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -94,7 +93,7 @@ func isRequestValid(m *domain.Article) (bool, error) {
 	return true, nil
 }
 
-// Store will store the article by given request body
+// Store will store the article by given request body.
 func (a *ArticleHandler) Store(c echo.Context) (err error) {
 	var article domain.Article
 	err = c.Bind(&article)
@@ -116,7 +115,7 @@ func (a *ArticleHandler) Store(c echo.Context) (err error) {
 	return c.JSON(http.StatusCreated, article)
 }
 
-// Delete will delete article by given param
+// Delete will delete article by given param.
 func (a *ArticleHandler) Delete(c echo.Context) error {
 	idP, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

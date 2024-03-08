@@ -9,7 +9,7 @@ const (
 	timeFormat = "2006-01-02T15:04:05.999Z07:00" // reduce precision from RFC3339Nano as date format
 )
 
-// DecodeCursor will decode cursor from user for rdb
+// DecodeCursor will decode cursor from user for rdb.
 func DecodeCursor(encodedTime string) (time.Time, error) {
 	byt, err := base64.StdEncoding.DecodeString(encodedTime)
 	if err != nil {
@@ -22,7 +22,7 @@ func DecodeCursor(encodedTime string) (time.Time, error) {
 	return t, err
 }
 
-// EncodeCursor will encode cursor from rdb to user
+// EncodeCursor will encode cursor from rdb to user.
 func EncodeCursor(t time.Time) string {
 	timeString := t.Format(timeFormat)
 

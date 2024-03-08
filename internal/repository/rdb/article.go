@@ -14,7 +14,7 @@ type ArticleRepository struct {
 	Conn *sql.DB
 }
 
-// NewArticleRepository will create an object that represent the article.Repository interface
+// NewArticleRepository will create an object that represent the article.Repository interface.
 func NewArticleRepository(conn *sql.DB) *ArticleRepository {
 	return &ArticleRepository{conn}
 }
@@ -45,7 +45,6 @@ func (m *ArticleRepository) fetch(ctx context.Context, query string, args ...int
 			&t.UpdatedAt,
 			&t.CreatedAt,
 		)
-
 		if err != nil {
 			logrus.Error(err)
 			return nil, err
@@ -79,6 +78,7 @@ func (m *ArticleRepository) Fetch(ctx context.Context, cursor string, num int64)
 
 	return
 }
+
 func (m *ArticleRepository) GetByID(ctx context.Context, id int64) (res domain.Article, err error) {
 	query := `SELECT id,title,content, author_id, updated_at, created_at
   						FROM article WHERE ID = ?`
@@ -158,6 +158,7 @@ func (m *ArticleRepository) Delete(ctx context.Context, id int64) (err error) {
 
 	return
 }
+
 func (m *ArticleRepository) Update(ctx context.Context, ar *domain.Article) (err error) {
 	query := `UPDATE article set title=?, content=?, author_id=?, updated_at=? WHERE ID = ?`
 

@@ -33,7 +33,7 @@ type Service struct {
 	authorRepo  AuthorRepository
 }
 
-// NewService will create a new article service object
+// NewService will create a new article service object.
 func NewService(a ArticleRepository, ar AuthorRepository) *Service {
 	return &Service{
 		articleRepo: a,
@@ -51,7 +51,7 @@ func (a *Service) fillAuthorDetails(ctx context.Context, data []domain.Article) 
 	// Get the author's id
 	mapAuthors := map[int64]domain.Author{}
 
-	for _, article := range data { //nolint
+	for _, article := range data { 
 		mapAuthors[article.Author.ID] = domain.Author{}
 	}
 	// Using goroutine to fetch the author's detail
@@ -75,7 +75,6 @@ func (a *Service) fillAuthorDetails(ctx context.Context, data []domain.Article) 
 			logrus.Error(err)
 			return
 		}
-
 	}()
 
 	for author := range chanAuthor {
@@ -89,7 +88,7 @@ func (a *Service) fillAuthorDetails(ctx context.Context, data []domain.Article) 
 	}
 
 	// merge the author's data
-	for index, item := range data { //nolint
+	for index, item := range data { 
 		if a, ok := mapAuthors[item.Author.ID]; ok {
 			data[index].Author = a
 		}

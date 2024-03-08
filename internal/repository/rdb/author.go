@@ -11,7 +11,7 @@ type AuthorRepository struct {
 	DB *sql.DB
 }
 
-// NewrdbAuthorRepository will create an implementation of author.Repository
+// NewrdbAuthorRepository will create an implementation of author.Repository.
 func NewAuthorRepository(db *sql.DB) *AuthorRepository {
 	return &AuthorRepository{
 		DB: db,

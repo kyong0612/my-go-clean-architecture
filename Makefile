@@ -42,7 +42,7 @@ generate-sqlc:
 .PHONY: lint
 lint:
 	@echo "Applying linter"
-	$(GOLANGCI_LINT) -c .golangci.yml ./...
+	$(GOLANGCI_LINT) run --fix
 
 TESTS_ARGS := --format testname --jsonfile gotestsum.json.out
 TESTS_ARGS += --max-fails 2

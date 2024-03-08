@@ -8,36 +8,31 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 services:
-  server:
-    build:
-      context: .
-      dockerfile: docker/app/Dockerfile
-      target: final
-    ports:
-      - 9090:9090
-    depends_on:
-      db:
-        condition: service_healthy
+  # server:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/app/Dockerfile
+  #     target: final
+  #   ports:
+  #     - 9090:9090
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
   db:
     image: postgres:16.2
-    user: postgres
-    secrets:
-      - db-password
     volumes:
       - db-data:/var/lib/postgresql/data
+      - ./docker/db/init:/docker-entrypoint-initdb.d
     environment:
-      - POSTGRES_DB=article
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-    expose:
-      - 5432
+      POSTGRES_DB: article
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s
       timeout: 5s
-      retries: 5
 volumes:
   db-data:
-secrets:
-  db-password:
-    file: docker/db/password.txt
-

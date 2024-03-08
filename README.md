@@ -1,6 +1,6 @@
 # my-go-clean-architecture
 
-I implemented golang's clean architecture
+This is my idea of golang's clean architecture
 
 ## Changelog
 

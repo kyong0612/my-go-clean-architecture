@@ -1,8 +1,4 @@
-# Database
-DB_USER ?= postgres
-DB_PASSWORD ?= password
-DB_ADDRESS ?= 127.0.0.1:5432
-DB_DATABASE ?= article
+include .env
 
 # Default Shell
 SHELL := /bin/bash

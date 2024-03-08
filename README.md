@@ -45,6 +45,17 @@ This project has 4 Domain layer :
 
 ### How To Run This Project
 
+#### Setup the Environment
+
+```bash
+cp .env.sample .env
+
+# install direnv(ref: https://direnv.net/docs/installation.html)
+brew install direnv
+# active direnv
+direnv allow .
+```
+
 #### Run the Testing
 
 ```bash
@@ -79,4 +90,4 @@ docs for more detail on building and pushing.
 
 ### References
 
-* [Docker's Go guide](https://docs.docker.com/language/golang/)
+- [Docker's Go guide](https://docs.docker.com/language/golang/)

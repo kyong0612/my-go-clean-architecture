@@ -27,7 +27,9 @@ jobs:
         run: cp .env.sample .env
 
       - name: Linter
-        run: make lint
+        run: |
+          make lint
+          git diff --exit-code
 
       - name: Test
         run: make tests

@@ -3,7 +3,7 @@
 //   sqlc v1.25.0
 // source: author.sql
 
-package persistence
+package postgres
 
 import (
 	"context"

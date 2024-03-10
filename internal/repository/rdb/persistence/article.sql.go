@@ -7,15 +7,32 @@ package persistence
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const getArticle = `-- name: GetArticle :one
-SELECT id, title, content, author_id, updated_at, created_at FROM article
-WHERE id = $1 LIMIT 1
+const deleteArticle = `-- name: DeleteArticle :exec
+DELETE FROM article
+WHERE
+  id = $1
 `
 
-func (q *Queries) GetArticle(ctx context.Context, id int32) (Article, error) {
-	row := q.db.QueryRow(ctx, getArticle, id)
+func (q *Queries) DeleteArticle(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteArticle, id)
+	return err
+}
+
+const getArticleById = `-- name: GetArticleById :one
+SELECT
+  id, title, content, author_id, updated_at, created_at
+FROM
+  article
+WHERE
+  id = $1
+`
+
+func (q *Queries) GetArticleById(ctx context.Context, id int32) (Article, error) {
+	row := q.db.QueryRow(ctx, getArticleById, id)
 	var i Article
 	err := row.Scan(
 		&i.ID,
@@ -26,4 +43,95 @@ func (q *Queries) GetArticle(ctx context.Context, id int32) (Article, error) {
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const getArticleByTitle = `-- name: GetArticleByTitle :one
+SELECT
+  id, title, content, author_id, updated_at, created_at
+FROM
+  article
+WHERE
+  title LIKE $1
+LIMIT
+  1
+`
+
+func (q *Queries) GetArticleByTitle(ctx context.Context, title string) (Article, error) {
+	row := q.db.QueryRow(ctx, getArticleByTitle, title)
+	var i Article
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Content,
+		&i.AuthorID,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const listAuthors = `-- name: ListAuthors :many
+SELECT
+  id, title, content, author_id, updated_at, created_at
+FROM
+  article
+WHERE
+  created_at > $1
+ORDER BY
+  created_at
+LIMIT
+  $2
+`
+
+type ListAuthorsParams struct {
+	CreatedAt pgtype.Timestamptz
+	Limit     int64
+}
+
+func (q *Queries) ListAuthors(ctx context.Context, arg ListAuthorsParams) ([]Article, error) {
+	rows, err := q.db.Query(ctx, listAuthors, arg.CreatedAt, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Article
+	for rows.Next() {
+		var i Article
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Content,
+			&i.AuthorID,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateArticle = `-- name: UpdateArticle :exec
+UPDATE article
+SET
+  title = coalesce($1, title),
+  content = coalesce($2, content)
+WHERE
+  id = $3
+`
+
+type UpdateArticleParams struct {
+	Title   pgtype.Text
+	Content pgtype.Text
+	ID      int32
+}
+
+// ref: https://docs.sqlc.dev/en/latest/howto/named_parameters.html#nullable-parameters
+func (q *Queries) UpdateArticle(ctx context.Context, arg UpdateArticleParams) error {
+	_, err := q.db.Exec(ctx, updateArticle, arg.Title, arg.Content, arg.ID)
+	return err
 }

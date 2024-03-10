@@ -11,6 +11,21 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createArticle = `-- name: CreateArticle :exec
+INSERT INTO article(title, content, author_id) VALUES ($1, $2, $3) RETURNING id, title, content, author_id, updated_at, created_at
+`
+
+type CreateArticleParams struct {
+	Title    string
+	Content  string
+	AuthorID pgtype.Int4
+}
+
+func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) error {
+	_, err := q.db.Exec(ctx, createArticle, arg.Title, arg.Content, arg.AuthorID)
+	return err
+}
+
 const deleteArticle = `-- name: DeleteArticle :exec
 DELETE FROM article
 WHERE

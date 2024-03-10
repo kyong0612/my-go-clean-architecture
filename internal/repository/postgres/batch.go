@@ -17,23 +17,23 @@ var (
 	ErrBatchAlreadyClosed = errors.New("batch already closed")
 )
 
-const createArticle = `-- name: CreateArticle :batchexec
-INSERT INTO article(title, content, author_id) VALUES ($1, $2, $3) RETURNING id, title, content, author_id, updated_at, created_at
+const createArticles = `-- name: CreateArticles :batchexec
+INSERT INTO article(title, content, author_id) VALUES ($1, $2, $3)
 `
 
-type CreateArticleBatchResults struct {
+type CreateArticlesBatchResults struct {
 	br     pgx.BatchResults
 	tot    int
 	closed bool
 }
 
-type CreateArticleParams struct {
+type CreateArticlesParams struct {
 	Title    string
 	Content  string
 	AuthorID pgtype.Int4
 }
 
-func (q *Queries) CreateArticle(ctx context.Context, arg []CreateArticleParams) *CreateArticleBatchResults {
+func (q *Queries) CreateArticles(ctx context.Context, arg []CreateArticlesParams) *CreateArticlesBatchResults {
 	batch := &pgx.Batch{}
 	for _, a := range arg {
 		vals := []interface{}{
@@ -41,13 +41,13 @@ func (q *Queries) CreateArticle(ctx context.Context, arg []CreateArticleParams) 
 			a.Content,
 			a.AuthorID,
 		}
-		batch.Queue(createArticle, vals...)
+		batch.Queue(createArticles, vals...)
 	}
 	br := q.db.SendBatch(ctx, batch)
-	return &CreateArticleBatchResults{br, len(arg), false}
+	return &CreateArticlesBatchResults{br, len(arg), false}
 }
 
-func (b *CreateArticleBatchResults) Exec(f func(int, error)) {
+func (b *CreateArticlesBatchResults) Exec(f func(int, error)) {
 	defer b.br.Close()
 	for t := 0; t < b.tot; t++ {
 		if b.closed {
@@ -63,7 +63,7 @@ func (b *CreateArticleBatchResults) Exec(f func(int, error)) {
 	}
 }
 
-func (b *CreateArticleBatchResults) Close() error {
+func (b *CreateArticlesBatchResults) Close() error {
 	b.closed = true
 	return b.br.Close()
 }

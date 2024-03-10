@@ -27,9 +27,12 @@ WHERE
   title LIKE $1
 LIMIT
   1;
-  
--- name: CreateArticle :batchexec
+
+-- name: CreateArticle :exec
 INSERT INTO article(title, content, author_id) VALUES ($1, $2, $3) RETURNING *;
+
+-- name: CreateArticles :batchexec
+INSERT INTO article(title, content, author_id) VALUES ($1, $2, $3);
 
 -- name: UpdateArticle :exec
 UPDATE article

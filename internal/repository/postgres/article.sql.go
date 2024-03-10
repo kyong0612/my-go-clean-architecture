@@ -130,7 +130,6 @@ type UpdateArticleParams struct {
 	ID      int32
 }
 
-// ref: https://docs.sqlc.dev/en/latest/howto/named_parameters.html#nullable-parameters
 func (q *Queries) UpdateArticle(ctx context.Context, arg UpdateArticleParams) error {
 	_, err := q.db.Exec(ctx, updateArticle, arg.Title, arg.Content, arg.ID)
 	return err

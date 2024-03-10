@@ -27,11 +27,10 @@ WHERE
   title LIKE $1
 LIMIT
   1;
-
--- -- name: CreateArticle :copyfrom
+  
+-- name: CreateArticle :batchexec
 INSERT INTO article(title, content, author_id) VALUES ($1, $2, $3) RETURNING *;
 
--- ref: https://docs.sqlc.dev/en/latest/howto/named_parameters.html#nullable-parameters
 -- name: UpdateArticle :exec
 UPDATE article
 SET

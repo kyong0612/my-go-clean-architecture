@@ -1,76 +1,73 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"time"
 
-	_ "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5"
+	"github.com/joho/godotenv"
+	"github.com/kyong0612/my-go-clean-architecture/internal/repository"
+	"github.com/kyong0612/my-go-clean-architecture/internal/rest"
+	"github.com/kyong0612/my-go-clean-architecture/internal/rest/middleware"
+	"github.com/kyong0612/my-go-clean-architecture/usecase/article"
+	"github.com/labstack/echo/v4"
 )
 
-// const (
-// 	defaultTimeout = 30
-// 	defaultAddress = ":9090"
-// )
+const (
+	defaultTimeout = 30
+	defaultAddress = ":9090"
+)
 
-// func init() {
-// 	err := godotenv.Load()
-// 	if err != nil {
-// 		log.Fatal("Error loading .env file")
-// 	}
-// }
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
 
 func main() {
-	fmt.Println("Hello World")
-	// //prepare database
-	// dbHost := os.Getenv("DATABASE_HOST")
-	// dbPort := os.Getenv("DATABASE_PORT")
-	// dbUser := os.Getenv("DATABASE_USER")
-	// dbPass := os.Getenv("DATABASE_PASS")
-	// dbName := os.Getenv("DATABASE_NAME")
-	// connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
-	// val := url.Values{}
-	// val.Add("parseTime", "1")
-	// val.Add("loc", "Asia/Jakarta")
-	// dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
-	// dbConn, err := sql.Open(`rdb`, dsn)
-	// if err != nil {
-	// 	log.Fatal("failed to open connection to database", err)
-	// }
-	// err = dbConn.Ping()
-	// if err != nil {
-	// 	log.Fatal("failed to ping database ", err)
-	// }
+	//prepare database
+	dbHost := os.Getenv("DATABASE_HOST")
+	dbPort := os.Getenv("DATABASE_PORT")
+	dbUser := os.Getenv("DATABASE_USER")
+	dbPass := os.Getenv("DATABASE_PASS")
+	dbName := os.Getenv("DATABASE_NAME")
+	connURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=verify-full", dbUser, dbPass, dbHost, dbPort, dbName)
 
-	// defer func() {
-	// 	err := dbConn.Close()
-	// 	if err != nil {
-	// 		log.Fatal("got error when closing the DB connection", err)
-	// 	}
-	// }()
-	// // prepare echo
+	dbConn, err := pgx.Connect(context.TODO(), connURL)
+	if err != nil {
+		log.Fatal("failed to open connection to database", err)
+	}
+	defer dbConn.Close(context.TODO())
 
-	// e := echo.New()
-	// e.Use(middleware.CORS)
-	// timeoutStr := os.Getenv("CONTEXT_TIMEOUT")
-	// timeout, err := strconv.Atoi(timeoutStr)
-	// if err != nil {
-	// 	log.Println("failed to parse timeout, using default timeout")
-	// 	timeout = defaultTimeout
-	// }
-	// timeoutContext := time.Duration(timeout) * time.Second
-	// e.Use(middleware.SetRequestContextWithTimeout(timeoutContext))
+	// prepare echo
 
-	// // Prepare Repository
-	// authorRepo := rdbRepo.NewAuthorRepository(dbConn)
-	// articleRepo := rdbRepo.NewArticleRepository(dbConn)
+	e := echo.New()
+	e.Use(middleware.CORS)
+	timeoutStr := os.Getenv("CONTEXT_TIMEOUT")
+	timeout, err := strconv.Atoi(timeoutStr)
+	if err != nil {
+		log.Println("failed to parse timeout, using default timeout")
+		timeout = defaultTimeout
+	}
+	timeoutContext := time.Duration(timeout) * time.Second
+	e.Use(middleware.SetRequestContextWithTimeout(timeoutContext))
 
-	// // Build service Layer
-	// svc := article.NewService(articleRepo, authorRepo)
-	// rest.NewArticleHandler(e, svc)
+	// Prepare Repository
+	repo := repository.New(dbConn)
 
-	// // Start Server
-	// address := os.Getenv("SERVER_ADDRESS")
-	// if address == "" {
-	// 	address = defaultAddress
-	// }
-	// log.Fatal(e.Start(os.Getenv("SERVER_ADDRESS"))) //nolint
+	// Build service Layer
+	svc := article.NewService(repo)
+	rest.NewArticleHandler(e, svc)
+
+	// Start Server
+	address := os.Getenv("SERVER_ADDRESS")
+	if address == "" {
+		address = defaultAddress
+	}
+	log.Fatal(e.Start(os.Getenv("SERVER_ADDRESS"))) //nolint
 }

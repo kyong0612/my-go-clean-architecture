@@ -20,12 +20,12 @@ type ResponseError struct {
 //
 //go:generate mockery --name ArticleService
 type ArticleService interface {
-	Fetch(ctx context.Context, cursor string, num int64) ([]domain.Article, string, error)
-	GetByID(ctx context.Context, id int64) (domain.Article, error)
-	Update(ctx context.Context, ar *domain.Article) error
-	GetByTitle(ctx context.Context, title string) (domain.Article, error)
-	Store(context.Context, *domain.Article) error
-	Delete(ctx context.Context, id int64) error
+	FetchArticles(ctx context.Context, cursor string, num int32) ([]domain.Article, string, error)
+	GetArticleByID(ctx context.Context, id int32) (domain.Article, error)
+	UpdateArticle(ctx context.Context, ar *domain.Article) error
+	GetArticleByTitle(ctx context.Context, title string) (domain.Article, error)
+	StoreArticle(context.Context, *domain.Article) error
+	DeleteArticle(ctx context.Context, id int32) error
 }
 
 // ArticleHandler  represent the httphandler for article.
@@ -57,7 +57,7 @@ func (a *ArticleHandler) FetchArticle(c echo.Context) error {
 	cursor := c.QueryParam("cursor")
 	ctx := c.Request().Context()
 
-	listAr, nextCursor, err := a.Service.Fetch(ctx, cursor, int64(num))
+	listAr, nextCursor, err := a.Service.FetchArticles(ctx, cursor, int32(num))
 	if err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -73,10 +73,10 @@ func (a *ArticleHandler) GetByID(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, domain.ErrNotFound.Error())
 	}
 
-	id := int64(idP)
+	id := int32(idP)
 	ctx := c.Request().Context()
 
-	art, err := a.Service.GetByID(ctx, id)
+	art, err := a.Service.GetArticleByID(ctx, id)
 	if err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -107,7 +107,7 @@ func (a *ArticleHandler) Store(c echo.Context) (err error) {
 	}
 
 	ctx := c.Request().Context()
-	err = a.Service.Store(ctx, &article)
+	err = a.Service.StoreArticle(ctx, &article)
 	if err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -122,10 +122,10 @@ func (a *ArticleHandler) Delete(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, domain.ErrNotFound.Error())
 	}
 
-	id := int64(idP)
+	id := int32(idP)
 	ctx := c.Request().Context()
 
-	err = a.Service.Delete(ctx, id)
+	err = a.Service.DeleteArticle(ctx, id)
 	if err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}

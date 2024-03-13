@@ -1,4 +1,4 @@
-package article
+package usecase
 
 import (
 	"github.com/kyong0612/my-go-clean-architecture/internal/repository"

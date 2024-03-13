@@ -6,10 +6,13 @@ import (
 	"strconv"
 
 	"github.com/kyong0612/my-go-clean-architecture/domain"
+	"github.com/kyong0612/my-go-clean-architecture/usecase"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	validator "gopkg.in/go-playground/validator.v9"
 )
+
+var _ ArticleService = (*usecase.Service)(nil)
 
 // ResponseError represent the response error struct.
 type ResponseError struct {

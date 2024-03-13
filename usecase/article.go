@@ -1,4 +1,4 @@
-package article
+package usecase
 
 import (
 	"context"

@@ -13,7 +13,7 @@ import (
 	"github.com/kyong0612/my-go-clean-architecture/internal/repository"
 	"github.com/kyong0612/my-go-clean-architecture/internal/rest"
 	"github.com/kyong0612/my-go-clean-architecture/internal/rest/middleware"
-	"github.com/kyong0612/my-go-clean-architecture/usecase/article"
+	"github.com/kyong0612/my-go-clean-architecture/usecase"
 	"github.com/labstack/echo/v4"
 )
 
@@ -61,7 +61,7 @@ func main() {
 	repo := repository.New(dbConn)
 
 	// Build service Layer
-	svc := article.NewService(repo)
+	svc := usecase.NewService(repo)
 	rest.NewArticleHandler(e, svc)
 
 	// Start Server

@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-const getAuthorById = `-- name: GetAuthorById :one
+const getAuthorByID = `-- name: GetAuthorByID :one
 SELECT
   id, name, created_at, updated_at
 FROM
@@ -18,8 +18,8 @@ WHERE
   id = $1
 `
 
-func (q *Queries) GetAuthorById(ctx context.Context, id int32) (Author, error) {
-	row := q.db.QueryRow(ctx, getAuthorById, id)
+func (q *Queries) GetAuthorByID(ctx context.Context, id int32) (Author, error) {
+	row := q.db.QueryRow(ctx, getAuthorByID, id)
 	var i Author
 	err := row.Scan(
 		&i.ID,

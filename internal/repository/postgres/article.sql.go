@@ -37,7 +37,7 @@ func (q *Queries) DeleteArticle(ctx context.Context, id int32) error {
 	return err
 }
 
-const getArticleById = `-- name: GetArticleById :one
+const getArticleByID = `-- name: GetArticleByID :one
 SELECT
   id, title, content, author_id, updated_at, created_at
 FROM
@@ -46,8 +46,8 @@ WHERE
   id = $1
 `
 
-func (q *Queries) GetArticleById(ctx context.Context, id int32) (Article, error) {
-	row := q.db.QueryRow(ctx, getArticleById, id)
+func (q *Queries) GetArticleByID(ctx context.Context, id int32) (Article, error) {
+	row := q.db.QueryRow(ctx, getArticleByID, id)
 	var i Article
 	err := row.Scan(
 		&i.ID,

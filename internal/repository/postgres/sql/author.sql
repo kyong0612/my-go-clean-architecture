@@ -1,4 +1,4 @@
--- name: GetAuthorById :one
+-- name: GetAuthorByID :one
 SELECT
   *
 FROM

@@ -10,7 +10,7 @@ ORDER BY
 LIMIT
   $2;
 
--- name: GetArticleById :one
+-- name: GetArticleByID :one
 SELECT
   *
 FROM

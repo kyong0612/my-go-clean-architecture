@@ -32,4 +32,4 @@ jobs:
           git diff --exit-code
 
       - name: Test
-        run: make tests
+        run: make tests-complete

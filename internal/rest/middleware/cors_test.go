@@ -12,7 +12,8 @@ import (
 )
 
 func TestCORS(t *testing.T) {
-	// TODO:
+	t.Parallel()
+
 	e := echo.New()
 	req := test.NewRequest(echo.GET, "/", nil)
 	res := test.NewRecorder()

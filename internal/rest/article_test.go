@@ -5,6 +5,7 @@ import (
 )
 
 func TestFetch(t *testing.T) {
+	t.Parallel()
 	// TODO:
 	// var mockArticle domain.Article
 	// err := faker.FakeData(&mockArticle)
@@ -33,9 +34,11 @@ func TestFetch(t *testing.T) {
 	// assert.Equal(t, "10", responseCursor)
 	// assert.Equal(t, http.StatusOK, rec.Code)
 	// mockUCase.AssertExpectations(t)
+	t.Log("TODO: TestFetch")
 }
 
 func TestFetchError(t *testing.T) {
+	t.Parallel()
 	// TODO:
 	// mockUCase := new(mocks.ArticleService)
 	// num := 1
@@ -58,9 +61,11 @@ func TestFetchError(t *testing.T) {
 	// assert.Equal(t, "", responseCursor)
 	// assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	// mockUCase.AssertExpectations(t)
+	t.Log("TODO: TestFetchError")
 }
 
 func TestGetByID(t *testing.T) {
+	t.Parallel()
 	// TODO:
 	// var mockArticle domain.Article
 	// err := faker.FakeData(&mockArticle)
@@ -89,9 +94,11 @@ func TestGetByID(t *testing.T) {
 
 	// assert.Equal(t, http.StatusOK, rec.Code)
 	// mockUCase.AssertExpectations(t)
+	t.Log("TODO: TestGetByID")
 }
 
 func TestStore(t *testing.T) {
+	t.Parallel()
 	// TODO:
 	// mockArticle := domain.Article{
 	// 	Title:     "Title",
@@ -126,10 +133,11 @@ func TestStore(t *testing.T) {
 
 	// assert.Equal(t, http.StatusCreated, rec.Code)
 	// mockUCase.AssertExpectations(t)
+	t.Log("TODO: TestStore")
 }
 
 func TestDelete(t *testing.T) {
-	// TODO:
+	t.Parallel()
 	// var mockArticle domain.Article
 	// err := faker.FakeData(&mockArticle)
 	// assert.NoError(t, err)
@@ -157,4 +165,5 @@ func TestDelete(t *testing.T) {
 
 	// assert.Equal(t, http.StatusNoContent, rec.Code)
 	// mockUCase.AssertExpectations(t)
+	t.Log("TODO: TestDelete")
 }

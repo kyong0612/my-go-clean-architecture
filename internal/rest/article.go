@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/cockroachdb/errors"
 	"github.com/kyong0612/my-go-clean-architecture/domain"
 	"github.com/kyong0612/my-go-clean-architecture/usecase"
 	"github.com/labstack/echo/v4"
@@ -27,7 +28,7 @@ type ArticleService interface {
 	GetArticleByID(ctx context.Context, id int32) (*domain.Article, error)
 	UpdateArticle(ctx context.Context, ar *domain.Article) error
 	GetArticleByTitle(ctx context.Context, title string) (*domain.Article, error)
-	StoreArticle(context.Context, *domain.Article) error
+	StoreArticle(ctx context.Context, ar *domain.Article) error
 	DeleteArticle(ctx context.Context, id int32) error
 }
 
@@ -52,7 +53,8 @@ func NewArticleHandler(e *echo.Echo, svc ArticleService) {
 // FetchArticle will fetch the article based on given params.
 func (a *ArticleHandler) FetchArticle(c echo.Context) error {
 	numS := c.QueryParam("num")
-	num, err := strconv.Atoi(numS)
+
+	num, err := strconv.ParseInt(numS, 10, 32)
 	if err != nil || num == 0 {
 		num = defaultNum
 	}
@@ -66,12 +68,13 @@ func (a *ArticleHandler) FetchArticle(c echo.Context) error {
 	}
 
 	c.Response().Header().Set(`X-Cursor`, nextCursor)
+
 	return c.JSON(http.StatusOK, listAr)
 }
 
 // GetByID will get article by given id.
 func (a *ArticleHandler) GetByID(c echo.Context) error {
-	idP, err := strconv.Atoi(c.Param("id"))
+	idP, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, domain.ErrNotFound.Error())
 	}
@@ -89,29 +92,28 @@ func (a *ArticleHandler) GetByID(c echo.Context) error {
 
 func isRequestValid(m *domain.Article) (bool, error) {
 	validate := validator.New()
+
 	err := validate.Struct(m)
 	if err != nil {
-		return false, err
+		return false, errors.Wrap(err, "Invalid request")
 	}
+
 	return true, nil
 }
 
 // Store will store the article by given request body.
-func (a *ArticleHandler) Store(c echo.Context) (err error) {
+func (a *ArticleHandler) Store(c echo.Context) error {
 	var article domain.Article
-	err = c.Bind(&article)
-	if err != nil {
+	if err := c.Bind(&article); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	var ok bool
-	if ok, err = isRequestValid(&article); !ok {
+	if ok, err := isRequestValid(&article); !ok {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	ctx := c.Request().Context()
-	err = a.Service.StoreArticle(ctx, &article)
-	if err != nil {
+	if err := a.Service.StoreArticle(ctx, &article); err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
@@ -120,7 +122,7 @@ func (a *ArticleHandler) Store(c echo.Context) (err error) {
 
 // Delete will delete article by given param.
 func (a *ArticleHandler) Delete(c echo.Context) error {
-	idP, err := strconv.Atoi(c.Param("id"))
+	idP, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, domain.ErrNotFound.Error())
 	}
@@ -142,12 +144,13 @@ func getStatusCode(err error) int {
 	}
 
 	logrus.Error(err)
-	switch err {
-	case domain.ErrInternalServerError:
+
+	switch {
+	case errors.Is(err, domain.ErrInternalServerError):
 		return http.StatusInternalServerError
-	case domain.ErrNotFound:
+	case errors.Is(err, domain.ErrNotFound):
 		return http.StatusNotFound
-	case domain.ErrConflict:
+	case errors.Is(err, domain.ErrConflict):
 		return http.StatusConflict
 	default:
 		return http.StatusInternalServerError

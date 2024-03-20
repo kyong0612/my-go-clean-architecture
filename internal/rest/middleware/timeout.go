@@ -16,6 +16,7 @@ func SetRequestContextWithTimeout(d time.Duration) echo.MiddlewareFunc {
 
 			newRequest := c.Request().WithContext(ctx)
 			c.SetRequest(newRequest)
+
 			return next(c)
 		}
 	}

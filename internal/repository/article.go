@@ -24,7 +24,7 @@ func articleToModel(article postgres.Article, author *postgres.Author) *domain.A
 	return &result
 }
 
-func (r *Repository) FetchArticles(ctx context.Context, cursor string, num int32) (res []*domain.Article, nextCursor string, err error) {
+func (r *Repository) FetchArticles(ctx context.Context, cursor string, num int32) ([]*domain.Article, string, error) {
 	sqlCursor, err := DecodeCursor(cursor)
 	if err != nil {
 		return nil, "", errors.Wrap(err, "failed to decode cursor")
@@ -38,7 +38,7 @@ func (r *Repository) FetchArticles(ctx context.Context, cursor string, num int32
 		return nil, "", errors.Wrap(err, "failed to fetch articles")
 	}
 
-	result := make([]*domain.Article, len(articles))
+	result := make([]*domain.Article, 0, len(articles))
 	for _, article := range articles {
 		result = append(result, articleToModel(article, nil))
 	}
@@ -51,6 +51,7 @@ func (r *Repository) GetArticleByID(ctx context.Context, id int32) (*domain.Arti
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get article by id")
 	}
+
 	return articleToModel(article, nil), nil
 }
 

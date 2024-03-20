@@ -37,23 +37,27 @@ func (a *Service) fillAuthorDetails(ctx context.Context, data []*domain.Article)
 	}
 	// Using goroutine to fetch the author's detail
 	chanAuthor := make(chan *domain.Author)
+
 	for authorID := range mapAuthors {
 		authorID := authorID
+
 		g.Go(func() error {
 			res, err := a.repo.GetAuthorByID(ctx, authorID)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "failed to get author by id")
 			}
 			chanAuthor <- res
+
 			return nil
 		})
 	}
 
 	go func() {
 		defer close(chanAuthor)
-		err := g.Wait()
-		if err != nil {
+
+		if err := g.Wait(); err != nil {
 			logrus.Error(err)
+
 			return
 		}
 	}()
@@ -65,7 +69,7 @@ func (a *Service) fillAuthorDetails(ctx context.Context, data []*domain.Article)
 	}
 
 	if err := g.Wait(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to fetch author's detail")
 	}
 
 	// merge the author's data
@@ -74,13 +78,14 @@ func (a *Service) fillAuthorDetails(ctx context.Context, data []*domain.Article)
 			data[index].Author = &a
 		}
 	}
+
 	return data, nil
 }
 
-func (a *Service) FetchArticles(ctx context.Context, cursor string, num int32) (res []*domain.Article, nextCursor string, err error) {
-	res, nextCursor, err = a.repo.FetchArticles(ctx, cursor, num)
+func (a *Service) FetchArticles(ctx context.Context, cursor string, num int32) ([]*domain.Article, string, error) {
+	res, nextCursor, err := a.repo.FetchArticles(ctx, cursor, num)
 	if err != nil {
-		return nil, "", err
+		return nil, "", errors.Wrap(err, "failed to fetch articles")
 	}
 
 	res, err = a.fillAuthorDetails(ctx, res)
@@ -88,31 +93,37 @@ func (a *Service) FetchArticles(ctx context.Context, cursor string, num int32) (
 		nextCursor = ""
 	}
 
-	return res, nextCursor, err
+	return res, nextCursor, errors.Wrap(err, "failed to fetch articles")
 }
 
 func (a *Service) GetArticleByID(ctx context.Context, id int32) (*domain.Article, error) {
 	res, err := a.repo.GetArticleByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get article by id")
 	}
 
 	resAuthor, err := a.repo.GetAuthorByID(ctx, res.Author.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get author by id")
 	}
+
 	res.Author = resAuthor
 
-	return res, err
+	return res, errors.Wrap(err, "failed to get article by id")
 }
 
-func (a *Service) UpdateArticle(ctx context.Context, ar *domain.Article) (err error) {
+func (a *Service) UpdateArticle(ctx context.Context, ar *domain.Article) error {
 	if ar == nil {
 		return nil
 	}
 
 	ar.UpdatedAt = time.Now()
-	return a.repo.UpdateArticle(ctx, *ar)
+
+	if err := a.repo.UpdateArticle(ctx, *ar); err != nil {
+		return errors.Wrap(err, "failed to update article")
+	}
+
+	return nil
 }
 
 func (a *Service) GetArticleByTitle(ctx context.Context, title string) (*domain.Article, error) {
@@ -127,7 +138,8 @@ func (a *Service) GetArticleByTitle(ctx context.Context, title string) (*domain.
 	}
 
 	res.Author = resAuthor
-	return res, err
+
+	return res, errors.Wrap(err, "failed to get article by title")
 }
 
 func (a *Service) StoreArticle(ctx context.Context, m *domain.Article) error {
@@ -135,9 +147,17 @@ func (a *Service) StoreArticle(ctx context.Context, m *domain.Article) error {
 		return nil
 	}
 
-	return a.repo.StoreArticle(ctx, *m)
+	if err := a.repo.StoreArticle(ctx, *m); err != nil {
+		return errors.Wrap(err, "failed to store article")
+	}
+
+	return nil
 }
 
 func (a *Service) DeleteArticle(ctx context.Context, id int32) error {
-	return a.repo.DeleteArticle(ctx, id)
+	if err := a.repo.DeleteArticle(ctx, id); err != nil {
+		return errors.Wrap(err, "failed to delete article")
+	}
+
+	return nil
 }

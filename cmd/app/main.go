@@ -49,6 +49,7 @@ func main() {
 	e.Use(middleware.CORS)
 
 	timeoutStr := os.Getenv("CONTEXT_TIMEOUT")
+
 	timeout, err := strconv.Atoi(timeoutStr)
 	if err != nil {
 		log.Println("failed to parse timeout, using default timeout")

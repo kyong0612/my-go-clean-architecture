@@ -3,6 +3,8 @@ package repository
 import (
 	"encoding/base64"
 	"time"
+
+	"github.com/cockroachdb/errors"
 )
 
 const (
@@ -13,13 +15,17 @@ const (
 func DecodeCursor(encodedTime string) (time.Time, error) {
 	byt, err := base64.StdEncoding.DecodeString(encodedTime)
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, errors.Wrap(err, "failed to decode cursor")
 	}
 
 	timeString := string(byt)
-	t, err := time.Parse(timeFormat, timeString)
 
-	return t, err
+	t, err := time.Parse(timeFormat, timeString)
+	if err != nil {
+		return time.Time{}, errors.Wrap(err, "failed to parse time")
+	}
+
+	return t, nil
 }
 
 // EncodeCursor will encode cursor from rdb to user.

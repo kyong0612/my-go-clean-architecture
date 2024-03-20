@@ -5,6 +5,7 @@ import (
 )
 
 func TestFetchArticle(t *testing.T) {
+	t.Parallel()
 	// TODO:
 	// mockArticleRepo := new(mocks.ArticleRepository)
 	// mockArticle := domain.Article{
@@ -54,9 +55,11 @@ func TestFetchArticle(t *testing.T) {
 	// 	mockArticleRepo.AssertExpectations(t)
 	// 	mockAuthorrepo.AssertExpectations(t)
 	// })
+	t.Log("TODO: TestFetchArticle")
 }
 
 func TestGetByID(t *testing.T) {
+	t.Parallel()
 	// TODO:
 	// mockArticleRepo := new(mocks.ArticleRepository)
 	// mockArticle := domain.Article{
@@ -96,9 +99,11 @@ func TestGetByID(t *testing.T) {
 	// 	mockArticleRepo.AssertExpectations(t)
 	// 	mockAuthorrepo.AssertExpectations(t)
 	// })
+	t.Log("TODO: TestGetByID")
 }
 
 func TestStore(t *testing.T) {
+	t.Parallel()
 	// TODO:
 	// mockArticleRepo := new(mocks.ArticleRepository)
 	// mockArticle := domain.Article{
@@ -139,9 +144,11 @@ func TestStore(t *testing.T) {
 	// 	mockArticleRepo.AssertExpectations(t)
 	// 	mockAuthorrepo.AssertExpectations(t)
 	// })
+	t.Log("TODO: TestStore")
 }
 
 func TestDelete(t *testing.T) {
+	t.Parallel()
 	// TODO:
 	// mockArticleRepo := new(mocks.ArticleRepository)
 	// mockArticle := domain.Article{
@@ -187,9 +194,11 @@ func TestDelete(t *testing.T) {
 	// 	mockArticleRepo.AssertExpectations(t)
 	// 	mockAuthorrepo.AssertExpectations(t)
 	// })
+	t.Log("TODO: TestDelete")
 }
 
 func TestUpdate(t *testing.T) {
+	t.Parallel()
 	// TODO:
 	// mockArticleRepo := new(mocks.ArticleRepository)
 	// mockArticle := domain.Article{
@@ -208,4 +217,5 @@ func TestUpdate(t *testing.T) {
 	// 	assert.NoError(t, err)
 	// 	mockArticleRepo.AssertExpectations(t)
 	// })
+	t.Log("TODO: TestUpdate")
 }

@@ -47,12 +47,15 @@ func main() {
 
 	e := echo.New()
 	e.Use(middleware.CORS)
+
 	timeoutStr := os.Getenv("CONTEXT_TIMEOUT")
 	timeout, err := strconv.Atoi(timeoutStr)
 	if err != nil {
 		log.Println("failed to parse timeout, using default timeout")
+
 		timeout = defaultTimeout
 	}
+
 	timeoutContext := time.Duration(timeout) * time.Second
 	e.Use(middleware.SetRequestContextWithTimeout(timeoutContext))
 
@@ -68,5 +71,6 @@ func main() {
 	if address == "" {
 		address = defaultAddress
 	}
-	log.Fatal(e.Start(os.Getenv("SERVER_ADDRESS"))) //nolint
+
+	log.Fatal(e.Start(address)) //nolint
 }

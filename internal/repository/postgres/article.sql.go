@@ -7,8 +7,7 @@ package postgres
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 const createArticle = `-- name: CreateArticle :exec
@@ -18,7 +17,7 @@ INSERT INTO article(title, content, author_id) VALUES ($1, $2, $3) RETURNING id,
 type CreateArticleParams struct {
 	Title    string
 	Content  string
-	AuthorID pgtype.Int4
+	AuthorID *int32
 }
 
 func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) error {
@@ -85,26 +84,26 @@ func (q *Queries) GetArticleByTitle(ctx context.Context, title string) (Article,
 	return i, err
 }
 
-const listAuthors = `-- name: ListAuthors :many
+const listArticles = `-- name: ListArticles :many
 SELECT
   id, title, content, author_id, updated_at, created_at
 FROM
   article
 WHERE
-  created_at > $1
+  created_at > $1::timestamptz
 ORDER BY
   created_at
 LIMIT
   $2
 `
 
-type ListAuthorsParams struct {
-	CreatedAt pgtype.Timestamptz
-	Limit     int64
+type ListArticlesParams struct {
+	Cursor time.Time
+	Limit  int64
 }
 
-func (q *Queries) ListAuthors(ctx context.Context, arg ListAuthorsParams) ([]Article, error) {
-	rows, err := q.db.Query(ctx, listAuthors, arg.CreatedAt, arg.Limit)
+func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]Article, error) {
+	rows, err := q.db.Query(ctx, listArticles, arg.Cursor, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -140,8 +139,8 @@ WHERE
 `
 
 type UpdateArticleParams struct {
-	Title   pgtype.Text
-	Content pgtype.Text
+	Title   *string
+	Content *string
 	ID      int32
 }
 

@@ -10,7 +10,6 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 var (
@@ -30,7 +29,7 @@ type CreateArticlesBatchResults struct {
 type CreateArticlesParams struct {
 	Title    string
 	Content  string
-	AuthorID pgtype.Int4
+	AuthorID *int32
 }
 
 func (q *Queries) CreateArticles(ctx context.Context, arg []CreateArticlesParams) *CreateArticlesBatchResults {

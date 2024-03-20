@@ -5,16 +5,16 @@
 package postgres
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 type Article struct {
 	ID        int32
 	Title     string
 	Content   string
-	AuthorID  pgtype.Int4
-	UpdatedAt pgtype.Timestamptz
-	CreatedAt pgtype.Timestamptz
+	AuthorID  *int32
+	UpdatedAt time.Time
+	CreatedAt time.Time
 }
 
 type ArticleCategory struct {
@@ -26,14 +26,14 @@ type ArticleCategory struct {
 type Author struct {
 	ID        int32
 	Name      string
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Category struct {
 	ID        int32
 	Name      string
 	Tag       string
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

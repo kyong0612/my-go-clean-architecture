@@ -9,8 +9,8 @@ CREATE TABLE public.article (
   title character varying NOT NULL,
   content character varying NOT NULL,
   author_id int DEFAULT 0,
-  updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-  created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 );
 
@@ -91,8 +91,8 @@ DROP TABLE IF EXISTS author;
 CREATE TABLE public.author (
   id SERIAL NOT NULL,
   name character varying NOT NULL DEFAULT '',
-  created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-  updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 );
 
@@ -121,8 +121,8 @@ CREATE TABLE public.category (
   id SERIAL NOT NULL,
   name character varying NOT NULL,
   tag character varying NOT NULL,
-  created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-  updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 );
 

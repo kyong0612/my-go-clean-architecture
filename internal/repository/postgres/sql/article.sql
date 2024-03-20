@@ -1,10 +1,10 @@
--- name: ListAuthors :many
+-- name: ListArticles :many
 SELECT
   *
 FROM
   article
 WHERE
-  created_at > $1
+  created_at > @cursor::timestamptz
 ORDER BY
   created_at
 LIMIT

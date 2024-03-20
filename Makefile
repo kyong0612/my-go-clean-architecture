@@ -41,7 +41,6 @@ generate-sqlc:
 # ~~~ Code Actions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .PHONY: lint
 lint:
-	@echo "Applying linter"
 	$(GOLANGCI_LINT) run --fix
 
 TESTS_ARGS := --format testname --jsonfile gotestsum.json.out

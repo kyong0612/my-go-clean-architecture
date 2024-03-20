@@ -22,15 +22,12 @@ const (
 	defaultAddress = ":9090"
 )
 
-func init() {
+func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
-	}
 }
 
-func main() {
-	//prepare database
 	dbHost := os.Getenv("DATABASE_HOST")
 	dbPort := os.Getenv("DATABASE_PORT")
 	dbUser := os.Getenv("DATABASE_USER")

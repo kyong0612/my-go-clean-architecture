@@ -1,0 +1,24 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    database:
+      uri: postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}
+    queries: "internal/repository/postgres/sql"
+    schema: "migrations"
+    gen:
+      go:
+        package: "postgres"
+        out: "internal/repository/postgres"
+        sql_package: "pgx/v5"
+        emit_pointers_for_null_types: true
+        overrides:
+          - db_type: timestamptz
+            go_type:
+              import: time
+              type: Time
+          - db_type: timestamptz
+            go_type:
+              import: time
+              type: Time
+              pointer: true
+            nullable: true

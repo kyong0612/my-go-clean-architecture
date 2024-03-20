@@ -67,7 +67,7 @@ tests-complete: ## Run Tests & parse details
 
 # # ~~~ Database Migrations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
-BASE_DSN := postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_ADDRESS)
+BASE_DSN := postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)
 DB_DSN := $(BASE_DSN)/$(DB_DATABASE)
 DEV_DB_DSN := $(BASE_DSN)/migrate-dev-database
 

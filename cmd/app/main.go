@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/joho/godotenv"
 	"github.com/kyong0612/my-go-clean-architecture/internal/repository"
 	"github.com/kyong0612/my-go-clean-architecture/internal/rest"
 	"github.com/kyong0612/my-go-clean-architecture/internal/rest/middleware"
@@ -23,19 +22,22 @@ const (
 )
 
 func main() {
-	err := godotenv.Load()
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_DATABASE")
+	dsn := fmt.Sprintf(
+		"user=%s password=%s host=%s port=%s database=%s sslmode=disable",
+		dbUser, dbPass, dbHost, dbPort, dbName,
+	)
+
+	config, err := pgx.ParseConfig(dsn)
 	if err != nil {
-		log.Fatal("Error loading .env file")
-}
+		log.Fatal("failed to parse config", err)
+	}
 
-	dbHost := os.Getenv("DATABASE_HOST")
-	dbPort := os.Getenv("DATABASE_PORT")
-	dbUser := os.Getenv("DATABASE_USER")
-	dbPass := os.Getenv("DATABASE_PASS")
-	dbName := os.Getenv("DATABASE_NAME")
-	connURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=verify-full", dbUser, dbPass, dbHost, dbPort, dbName)
-
-	dbConn, err := pgx.Connect(context.TODO(), connURL)
+	dbConn, err := pgx.ConnectConfig(context.TODO(), config)
 	if err != nil {
 		log.Fatal("failed to open connection to database", err)
 	}

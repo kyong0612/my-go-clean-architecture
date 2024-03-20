@@ -10,5 +10,5 @@ import (
 //
 //go:generate mockery --name AuthorRepository
 type AuthorRepository interface {
-	GetAuthorByID(ctx context.Context, id int32) (domain.Author, error)
+	GetAuthorByID(ctx context.Context, id int32) (*domain.Author, error)
 }

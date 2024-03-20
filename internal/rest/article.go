@@ -23,10 +23,10 @@ type ResponseError struct {
 //
 //go:generate mockery --name ArticleService
 type ArticleService interface {
-	FetchArticles(ctx context.Context, cursor string, num int32) ([]domain.Article, string, error)
-	GetArticleByID(ctx context.Context, id int32) (domain.Article, error)
+	FetchArticles(ctx context.Context, cursor string, num int32) ([]*domain.Article, string, error)
+	GetArticleByID(ctx context.Context, id int32) (*domain.Article, error)
 	UpdateArticle(ctx context.Context, ar *domain.Article) error
-	GetArticleByTitle(ctx context.Context, title string) (domain.Article, error)
+	GetArticleByTitle(ctx context.Context, title string) (*domain.Article, error)
 	StoreArticle(context.Context, *domain.Article) error
 	DeleteArticle(ctx context.Context, id int32) error
 }

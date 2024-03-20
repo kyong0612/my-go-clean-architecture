@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/cockroachdb/errors"
 	"github.com/kyong0612/my-go-clean-architecture/domain"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -13,11 +14,11 @@ import (
 //
 //go:generate mockery --name ArticleRepository
 type ArticleRepository interface {
-	FetchArticles(ctx context.Context, cursor string, num int32) (res []domain.Article, nextCursor string, err error)
-	GetArticleByID(ctx context.Context, id int32) (domain.Article, error)
-	GetArticleByTitle(ctx context.Context, title string) (domain.Article, error)
-	UpdateArticle(ctx context.Context, ar *domain.Article) error
-	StoreArticle(ctx context.Context, a *domain.Article) error
+	FetchArticles(ctx context.Context, cursor string, num int32) (res []*domain.Article, nextCursor string, err error)
+	GetArticleByID(ctx context.Context, id int32) (*domain.Article, error)
+	GetArticleByTitle(ctx context.Context, title string) (*domain.Article, error)
+	UpdateArticle(ctx context.Context, ar domain.Article) error
+	StoreArticle(ctx context.Context, a domain.Article) error
 	DeleteArticle(ctx context.Context, id int32) error
 }
 
@@ -26,7 +27,7 @@ type ArticleRepository interface {
 * Look how this works in this package explanation
 * in godoc: https://godoc.org/golang.org/x/sync/errgroup#ex-Group--Pipeline
  */
-func (a *Service) fillAuthorDetails(ctx context.Context, data []domain.Article) ([]domain.Article, error) {
+func (a *Service) fillAuthorDetails(ctx context.Context, data []*domain.Article) ([]*domain.Article, error) {
 	g, ctx := errgroup.WithContext(ctx)
 	// Get the author's id
 	mapAuthors := map[int32]domain.Author{}
@@ -35,7 +36,7 @@ func (a *Service) fillAuthorDetails(ctx context.Context, data []domain.Article) 
 		mapAuthors[article.Author.ID] = domain.Author{}
 	}
 	// Using goroutine to fetch the author's detail
-	chanAuthor := make(chan domain.Author)
+	chanAuthor := make(chan *domain.Author)
 	for authorID := range mapAuthors {
 		authorID := authorID
 		g.Go(func() error {
@@ -58,8 +59,8 @@ func (a *Service) fillAuthorDetails(ctx context.Context, data []domain.Article) 
 	}()
 
 	for author := range chanAuthor {
-		if author != (domain.Author{}) {
-			mapAuthors[author.ID] = author
+		if author != nil {
+			mapAuthors[author.ID] = *author
 		}
 	}
 
@@ -70,13 +71,13 @@ func (a *Service) fillAuthorDetails(ctx context.Context, data []domain.Article) 
 	// merge the author's data
 	for index, item := range data {
 		if a, ok := mapAuthors[item.Author.ID]; ok {
-			data[index].Author = a
+			data[index].Author = &a
 		}
 	}
 	return data, nil
 }
 
-func (a *Service) FetchArticles(ctx context.Context, cursor string, num int32) (res []domain.Article, nextCursor string, err error) {
+func (a *Service) FetchArticles(ctx context.Context, cursor string, num int32) (res []*domain.Article, nextCursor string, err error) {
 	res, nextCursor, err = a.repo.FetchArticles(ctx, cursor, num)
 	if err != nil {
 		return nil, "", err
@@ -86,60 +87,57 @@ func (a *Service) FetchArticles(ctx context.Context, cursor string, num int32) (
 	if err != nil {
 		nextCursor = ""
 	}
-	return
+
+	return res, nextCursor, err
 }
 
-func (a *Service) GetArticleByID(ctx context.Context, id int32) (res domain.Article, err error) {
-	res, err = a.repo.GetArticleByID(ctx, id)
+func (a *Service) GetArticleByID(ctx context.Context, id int32) (*domain.Article, error) {
+	res, err := a.repo.GetArticleByID(ctx, id)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	resAuthor, err := a.repo.GetAuthorByID(ctx, res.Author.ID)
 	if err != nil {
-		return domain.Article{}, err
+		return nil, err
 	}
 	res.Author = resAuthor
-	return
+
+	return res, err
 }
 
 func (a *Service) UpdateArticle(ctx context.Context, ar *domain.Article) (err error) {
+	if ar == nil {
+		return nil
+	}
+
 	ar.UpdatedAt = time.Now()
-	return a.repo.UpdateArticle(ctx, ar)
+	return a.repo.UpdateArticle(ctx, *ar)
 }
 
-func (a *Service) GetArticleByTitle(ctx context.Context, title string) (res domain.Article, err error) {
-	res, err = a.repo.GetArticleByTitle(ctx, title)
+func (a *Service) GetArticleByTitle(ctx context.Context, title string) (*domain.Article, error) {
+	res, err := a.repo.GetArticleByTitle(ctx, title)
 	if err != nil {
-		return
+		return nil, errors.Wrap(err, "failed to get article by title")
 	}
 
 	resAuthor, err := a.repo.GetAuthorByID(ctx, res.Author.ID)
 	if err != nil {
-		return domain.Article{}, err
+		return nil, errors.Wrap(err, "failed to get author by id")
 	}
 
 	res.Author = resAuthor
-	return
+	return res, err
 }
 
-func (a *Service) StoreArticle(ctx context.Context, m *domain.Article) (err error) {
-	existedArticle, _ := a.GetArticleByTitle(ctx, m.Title) // ignore if any error
-	if existedArticle != (domain.Article{}) {
-		return domain.ErrConflict
+func (a *Service) StoreArticle(ctx context.Context, m *domain.Article) error {
+	if m == nil {
+		return nil
 	}
 
-	err = a.repo.StoreArticle(ctx, m)
-	return
+	return a.repo.StoreArticle(ctx, *m)
 }
 
-func (a *Service) DeleteArticle(ctx context.Context, id int32) (err error) {
-	existedArticle, err := a.repo.GetArticleByID(ctx, id)
-	if err != nil {
-		return
-	}
-	if existedArticle == (domain.Article{}) {
-		return domain.ErrNotFound
-	}
+func (a *Service) DeleteArticle(ctx context.Context, id int32) error {
 	return a.repo.DeleteArticle(ctx, id)
 }

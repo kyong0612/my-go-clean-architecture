@@ -8,7 +8,9 @@ This is my idea of golang's clean architecture
   - Desc:
     - Initial commit.
     - Inspired by [bxcodec/go-clean-arch](https://github.com/bxcodec/go-clean-arch?tab=readme-ov-file)  
-    - Details can be seen in this PR TODO:.
+    - Details can be seen in this PR:
+      - <https://github.com/kyong0612/my-go-clean-architecture/pull/1>
+      - <https://github.com/kyong0612/my-go-clean-architecture/tree/feat/v1>
 
 ## Description
 

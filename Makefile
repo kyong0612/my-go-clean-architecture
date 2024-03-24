@@ -58,7 +58,7 @@ tests:
 
 tests-complete: ## Run Tests & parse details
 	make tests
-	@cat gotestsum.json.out | $(TPARSE) -all -notests
+	@cat gotestsum.json.out | $(TPARSE)
 
 # ~~~ Docker ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

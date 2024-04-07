@@ -1,4 +1,7 @@
-include .env
+ifneq (,$(wildcard ./.env))
+	include .env
+endif
+
 
 # Default Shell
 SHELL := /bin/bash

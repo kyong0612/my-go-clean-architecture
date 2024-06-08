@@ -1,6 +1,6 @@
 module github.com/kyong0612/my-go-clean-architecture
 
-go 1.22.2
+go 1.22.4
 
 require (
 	github.com/cockroachdb/errors v1.11.1

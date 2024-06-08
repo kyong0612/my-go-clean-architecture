@@ -4,7 +4,7 @@ go 1.22.4
 
 require (
 	github.com/cockroachdb/errors v1.11.1
-	github.com/jackc/pgx/v5 v5.5.5
+	github.com/jackc/pgx/v5 v5.6.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0

@@ -68,7 +68,7 @@ make tests
 
 Here is the steps to run it with
 
-TODO:
+TBD
 
 ### Building and running your application
 
